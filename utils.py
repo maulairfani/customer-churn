@@ -48,7 +48,7 @@ def pie(df, names, hover_variable):
     return fig
 
 # Tenure Months
-def tenure_months_distribution(y, agg="Mean"):
+def tenure_months_distribution(x, agg="Mean"):
     mapper = {
         0: "Less than 1 year",
         1: "1-2 years",
@@ -59,15 +59,15 @@ def tenure_months_distribution(y, agg="Mean"):
         6: "6-7 years"
     }
 
-    if y == "Count":
+    if x == "Count":
         temp = pd.DataFrame((df["Tenure Months"] // 12).replace(mapper).value_counts()).reset_index()
         temp.columns = ["Tenure Months", "Count"]
-    elif y != "Count":
-        if "Monthly" in y:
-            y = "Monthly Purchase (Thou. IDR)"
+    elif x != "Count":
+        if "Monthly" in x:
+            x = "Monthly Purchase (Thou. IDR)"
         else:
-            y = "CLTV (Predicted Thou. IDR)"
-        temp = df[["Tenure Months", y]]
+            x = "CLTV (Predicted Thou. IDR)"
+        temp = df[["Tenure Months", x]]
         temp["Tenure Months"] = (temp["Tenure Months"] // 12).replace(mapper)
 
         if agg == "Sum":
@@ -77,11 +77,38 @@ def tenure_months_distribution(y, agg="Mean"):
         else:
             temp = temp.groupby("Tenure Months").median().reset_index()
             
-    fig = px.bar(temp, y="Tenure Months", x = y,
+    fig = px.bar(temp, y="Tenure Months", x = x,
                 category_orders={"Tenure Months": list(mapper.values())},
                 title = "Tenure Months Distribution")
 
     fig.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=250)
     return fig
 
+# Payment Method
+def payment_method(df, y="Count", agg="Mean", hue=None):
+    if hue=="None":
+        hue=None
 
+    if y == "Count":
+        temp = df["Payment Method"].value_counts().reset_index()
+        temp.columns = ["Payment Method", "Count"]
+        if hue:
+            temp = df[["Payment Method", hue]].groupby(["Payment Method", hue]).size().reset_index()
+            temp.columns = ["Payment Method", hue, "Count"]
+    else:
+        if "Monthly" in y:
+            y = "Monthly Purchase (Thou. IDR)"
+        else:
+            y = "CLTV (Predicted Thou. IDR)"
+        if hue:
+            temp = df[["Payment Method", hue, y]].groupby(["Payment Method", hue]).agg(agg.lower()).reset_index()
+        else:
+            temp = df[["Payment Method", y]].groupby("Payment Method").agg(agg.lower()).reset_index()
+
+    if hue:
+        fig = px.bar(temp, x="Payment Method", y=y, color=hue, title="Payment Method Distribution", barmode="group")
+    else:
+        fig = px.bar(temp, x="Payment Method", y=y, title="Payment Method Distribution")
+
+    fig.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=400)
+    return fig
