@@ -115,10 +115,11 @@ def payment_method(df, y="Count", agg="Mean", hue=None):
 
 
 # Distribution
-cols = ['Tenure Months', 'Location', 'Device Class',
+cols = ['CLTV (Predicted Thou. IDR)', 'Churn Label', 
+        'Tenure Months', 'Location', 'Device Class',
         'Games Product', 'Music Product', 'Education Product', 'Call Center',
         'Video Product', 'Use MyApp', 'Payment Method',
-        'Monthly Purchase (Thou. IDR)', 'Churn Label', 'CLTV (Predicted Thou. IDR)']
+        'Monthly Purchase (Thou. IDR)']
 
 def plot_distribution(column, nbins=20):
     if df[column].dtype != "object":
