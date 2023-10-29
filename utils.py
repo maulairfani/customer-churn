@@ -81,7 +81,7 @@ def tenure_months_distribution(x, agg="Mean"):
                 category_orders={"Tenure Months": list(mapper.values())},
                 title = "Tenure Months Distribution")
 
-    fig.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=250)
+    fig.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=280)
     return fig
 
 # Payment Method
@@ -110,5 +110,29 @@ def payment_method(df, y="Count", agg="Mean", hue=None):
     else:
         fig = px.bar(temp, x="Payment Method", y=y, title="Payment Method Distribution")
 
-    fig.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=400)
+    fig.update_layout(legend=dict(orientation="h"), margin=dict(l=0, r=0, t=30, b=0), height=420)
     return fig
+
+
+# Distribution
+cols = ['Tenure Months', 'Location', 'Device Class',
+        'Games Product', 'Music Product', 'Education Product', 'Call Center',
+        'Video Product', 'Use MyApp', 'Payment Method',
+        'Monthly Purchase (Thou. IDR)', 'Churn Label', 'CLTV (Predicted Thou. IDR)']
+
+def plot_distribution(column, nbins=20):
+    if df[column].dtype != "object":
+        fig = px.histogram(df, x=column, nbins=nbins)
+        # desc = pd.DataFrame(round(df[column].describe(), 2)).transpose().reset_index(drop=True)
+    else:
+        temp = df[column].value_counts().reset_index()
+        temp.columns = [column, "Count"]
+        fig = px.bar(temp, x=column, y="Count")
+        # desc = pd.DataFrame(df[column].describe()).transpose().reset_index(drop=True)
+    
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=300)
+
+    return fig
+
+
+    return fig, desc

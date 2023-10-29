@@ -7,7 +7,8 @@ from utils import (
     cum_monthly_purchase, 
     cum_cltv, 
     tenure_months_distribution,
-    payment_method
+    payment_method,
+    cols, plot_distribution
 )
 import plotly.express as px
 st.set_page_config(layout="wide")
@@ -90,11 +91,11 @@ with tab1:
 
 
         with col2:
+
             option = st.selectbox(
                 '**Distribution Chart**',
-                df.columns, index=0)
-            fig = px.histogram(df, x="CLTV (Predicted Thou. IDR)", nbins=20)
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=300)
+                cols, index=0)
+            fig = plot_distribution(option)
             st.plotly_chart(fig, use_container_width=True)
 
     st.divider()
