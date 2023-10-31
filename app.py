@@ -24,6 +24,7 @@ tab1, tab2 = st.tabs(["Dashboard", "Dataset Overview"])
 with tab1:
     st.header("General Statistics")
 
+    # Metrics
     with st.container():
         col1, col2, col3, col4 = st.columns([0.2, 0.2, 0.3, 0.3])
         col1.metric("**Num of Customer**", f"{len(df['Customer ID'].unique())}", help="Lorem Ipsum")
@@ -33,6 +34,7 @@ with tab1:
 
     st.divider()
 
+    # Jumlah Customer dan Tenure
     with st.container():
         col1, col2 = st.columns([0.4, 0.6])
 
@@ -62,9 +64,9 @@ with tab1:
                     fig = tenure_months_distribution(x)
                 st.plotly_chart(fig, use_container_width=True)
                 
-    st.header("") # Untuk margin aja
-    st.write("")
+    st.divider()
 
+    # Payment dan Distribution
     with st.container():
         col1, col2, col3 = st.columns([0.45, 0.4, 0.05])
 
@@ -98,13 +100,27 @@ with tab1:
             fig = plot_distribution(option)
             st.plotly_chart(fig, use_container_width=True)
 
-    st.divider()
-
-
-
 # Dataset Overview
 with tab2:
     st.subheader("Data Examples")
     st.write(df.head())
     st.write("**Variables**")
     st.write(dataset_description)
+
+for i in range(3):
+    st.write("")
+
+tab1, tab2, tab3 = st.tabs(["Product Usage Analysis", "Customer Segmentation", "Customer Churn Analysis"])
+
+with tab1:
+    st.header("Product Usage Analysis")
+    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+    dependent = st.selectbox("Select Dependent Variable", ["Churn Label", "CLTV (Predicted Thou. IDR)"])
+
+    products = st.multiselect(
+        'Select Products',
+        ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"])
+
+    hue = st.selectbox("Select Hue", ["None", "Location", "Device Class"], index=0)
+
+    
