@@ -2,6 +2,8 @@ import plotly.express as px
 import pandas as pd
 from scipy.stats import chi2_contingency
 import numpy as np
+import scipy.stats as stats
+import statsmodels.api as sm
 
 
 dataset_description = """1. Customer ID (A unique customer identifier)
@@ -215,3 +217,71 @@ def cramers_v(product):
         "Effect Size" : [effect_size]
     })
     return output
+
+# Hypothesis testing for CLTV
+def check_for_anova_assumptions(product):
+    import warnings
+    warnings.filterwarnings("ignore")
+
+    groups = dict()
+    labels = list()
+    for key in df[product].unique():
+        groups[key] = df[df[product] == key]["CLTV (Predicted Thou. IDR)"].values
+        labels.extend([key]*len(groups[key]))
+    data = np.concatenate(list(groups.values()))
+
+    # Normality test
+    normality_test = stats.shapiro(data)
+    # Uji homoskedastisitas (Levene's test)
+    homoskedasticity_test = stats.levene(*groups.values())
+
+    return pd.DataFrame({
+        "Normality" : ["❌" if normality_test.pvalue < 0.05 else "✅"],
+        "Homoscedasticity" : ["❌" if homoskedasticity_test.pvalue < 0.05 else "✅"],
+    })
+
+def anova(product):
+    groups = dict()
+    labels = list()
+    for key in df[product].unique():
+        groups[key] = df[df[product] == key]["CLTV (Predicted Thou. IDR)"].values
+        labels.extend([key]*len(groups[key]))
+    data = np.concatenate(list(groups.values()))
+
+    # Asumsi normalitas dan homoskedastisitas terpenuhi, gunakan One-Way ANOVA
+    f_statistic, anova_p_value = stats.f_oneway(*groups.values())
+
+    # Lakukan uji post hoc jika diperlukan (misalnya, Tukey's HSD)
+    if anova_p_value < 0.05:
+        posthoc = sm.stats.multicomp.MultiComparison(data, labels)
+        posthoc_result = posthoc.tukeyhsd()
+    else:
+        posthoc_result = None
+
+    return f_statistic, anova_p_value, posthoc_result
+
+def kruskal_wallis(product):
+    groups = dict()
+    labels = list()
+    for key in df[product].unique():
+        groups[key] = df[df[product] == key]["CLTV (Predicted Thou. IDR)"].values
+        labels.extend([key]*len(groups[key]))
+    data = np.concatenate(list(groups.values()))
+    kruskal_statistic, kruskal_p_value = stats.kruskal(*groups.values())
+
+    return kruskal_statistic, kruskal_p_value, None
+
+def cltv_hypothesis_testing(product):
+    assumptions = check_for_anova_assumptions(product)
+
+    if "❌" in assumptions.iloc[0].values:
+        statistic, pvalue, posthoc_result = kruskal_wallis(product)
+    else:
+        statistic, pvalue, posthoc_result = anova(product)
+
+    if pvalue < 0.05:
+        conclusion = f"Terdapat perbedaan signifikan antara setidaknya dua kelompok pada {product} ditinjau dari nilai CLTV"
+    else:
+        conclusion = f"**Tidak terdapat** perbedaan signifikan antara setidaknya dua kelompok pada {product} ditinjau dari nilai CLTV"
+
+    return assumptions, statistic, pvalue, posthoc_result, conclusion

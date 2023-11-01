@@ -9,7 +9,8 @@ from utils import (
     tenure_months_distribution,
     payment_method,
     cols, plot_distribution,
-    products_figure, chi2_test, cramers_v
+    products_figure, chi2_test, cramers_v,
+    cltv_hypothesis_testing
 )
 import plotly.express as px
 st.set_page_config(layout="wide")
@@ -129,24 +130,59 @@ with tab1:
         st.write("**Chi2 Test**\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
     
     if products:
-        for i in range(len(products)):
-            st.divider()
+        if dependent == "Churn Label":
+            for i in range(len(products)):
+                st.divider()
 
-            col1, col2, col3 = st.columns([0.4, 0.05, 0.55])
+                col1, col2, col3 = st.columns([0.4, 0.05, 0.55])
 
-            with col1:
-                st.write(f"**Jumlah Customer Churn dan Tidak Churn berdasarkan {products[i]}**")
-                fig = products_figure(products[i], percentage, "Churn Label")
-                st.plotly_chart(fig, use_container_width=True)
+                with col1:
+                    st.write(f"**Jumlah Customer Churn dan Tidak Churn berdasarkan {products[i]}**")
+                    fig = products_figure(products[i], percentage, "Churn Label")
+                    st.plotly_chart(fig, use_container_width=True)
 
-            with col3:
-                with st.expander("**Hypothesis Test**", expanded=True):
-                    test = chi2_test(products[i])
-                    st.write(test)
+                with col3:
+                    with st.expander("**Hypothesis Test**", expanded=True):
+                        test = chi2_test(products[i])
+                        st.write(test)
 
-                with st.expander("**Effect size in the Chi-square test**", expanded=True):
-                    cramers_v_output = cramers_v(products[i])
-                    st.write(cramers_v_output)
+                    with st.expander("**Effect size in the Chi-square test**", expanded=True):
+                        cramers_v_output = cramers_v(products[i])
+                        st.write(cramers_v_output)
+
+        elif dependent == "CLTV (Predicted Thou. IDR)":
+            for i in range(len(products)):
+                st.divider()
+
+                col1, col2, col3 = st.columns([0.4, 0.05, 0.55])
+
+                with col1:
+                    st.write(f"**Jumlah Customer Churn dan Tidak Churn berdasarkan {products[i]}**")
+                    fig = products_figure(products[i], percentage, "Churn Label")
+                    st.plotly_chart(fig, use_container_width=True)
+
+                with col3:
+                    assumptions, statistic, pvalue, posthoc_result, conclusion = cltv_hypothesis_testing(products[i])
+                    with st.expander("**Assumptions for ANOVA**", expanded=True):
+                        st.write(assumptions)
+
+                    if '❌' in assumptions.iloc[0].values:
+                        label = "Kruskal-Wallis Test"
+                        result = pd.DataFrame({
+                            "Kruskal Statistic" : [statistic],
+                            "P-Value" : [pvalue],
+                            "Conclusion" : [conclusion]
+                        })
+                    else:
+                        label = "ANOVA One-way"
+                        result = pd.DataFrame({
+                            "F Statistic" : [statistic],
+                            "P-Value" : [pvalue],
+                            "Conclusion" : [conclusion]
+                        })
+                    with st.expander(f"**{label}**", expanded=True):
+                        st.write(result)
+
 
     else:
         st.warning("Silahkan pilih produk yang ingin dianalisis")
