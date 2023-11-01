@@ -151,4 +151,7 @@ with tab1:
     else:
         st.warning("Silahkan pilih produk yang ingin dianalisis")
 
-    
+
+st.divider()
+
+st.header('cek')
