@@ -1,5 +1,8 @@
 import plotly.express as px
 import pandas as pd
+from scipy.stats import chi2_contingency
+import numpy as np
+
 
 dataset_description = """1. Customer ID (A unique customer identifier)
 2. Tenure Months (How long the customer has been with the company by the
@@ -137,3 +140,78 @@ def plot_distribution(column, nbins=20):
 
 
     return fig, desc
+
+
+# Product Usage
+def products_figure(product, percentage, dependent="Churn Label"):
+    # Menghitung "Count" untuk setiap kategori
+    temp = df[[product, "Churn Label", "Customer ID"]].groupby([product, "Churn Label"]).count().reset_index()
+    temp.columns = [product, "Churn Label", "Count"]
+
+    # Menghitung total "Count" untuk setiap kategori produk
+    total_count = temp.groupby(product)["Count"].sum()
+    temp["Percentage"] = (temp["Count"] / temp[product].map(total_count)) * 100
+
+    # Plot dengan sumbu y "Count"
+    y = "Percentage" if percentage else "Count"
+    fig = px.bar(temp, x=product, y=y, color="Churn Label", barmode="group")
+                #  title=f"Jumlah Customer Churn dan Tidak Churn berdasarkan {product}")
+    
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=350)
+
+    return fig
+
+# Chi2_test
+def chi2_test(product):
+    observed = pd.crosstab(df[product], df["Churn Label"])
+    chi2, p, dof, expected = chi2_contingency(observed)
+
+    if p < 0.05:
+        conclusion = f"Terdapat hubungan yang signifikan antara {product} dan Churn."
+    else:
+        conclusion = f"Tidak terdapat hubungan yang signifikan antara {product} dan Churn." 
+
+    output = pd.DataFrame({
+        "chi2" : [round(chi2, 2)],
+        "p-value" : [round(p, 3)],
+        "dof" : [dof],
+        "conclusion" : [conclusion]
+    })
+
+    return output
+
+# Cramer's V
+def cramers_v(product):
+    cross_tabs = pd.crosstab(df[product], df["Churn Label"])
+
+    chi2 = chi2_contingency(cross_tabs)[0]
+    n = cross_tabs.sum().sum()
+    dof = min(cross_tabs.shape) - 1
+    v = np.sqrt(chi2 / (n * dof))
+
+    # Effect size data frame for Cramer's V function
+    data = np.array([[1, .1, .3, .5],
+        [2, .07, .21, .35],
+        [3, .06, .17, .29],
+        [4, .05, .15, .25],
+        [5, .04, .13, .22]])
+    sizes = pd.DataFrame(data, columns=['Degrees of Freedom', 'Small Effect', 'Medium Effect', 'Large Effect']) 
+    
+    # Interpreting the effect size
+    effect_size = "Small Effect"
+    for i, row in sizes.iterrows():
+        if dof == row["Degrees of Freedom"]:
+            if v > row["Small Effect"] and v <= row["Medium Effect"]:
+                effect_size = "Small Effect"
+            elif v > row["Medium Effect"] and v <= row["Large Effect"]:
+                effect_size = "Medium Effect"
+            else:
+                effect_size = "Large Effect"
+            break
+
+    output = pd.DataFrame({
+        "V" : [round(v, 3)],
+        "Cramer's V Degrees of Freedom" : [dof],
+        "Effect Size" : [effect_size]
+    })
+    return output

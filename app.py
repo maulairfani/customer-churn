@@ -8,7 +8,8 @@ from utils import (
     cum_cltv, 
     tenure_months_distribution,
     payment_method,
-    cols, plot_distribution
+    cols, plot_distribution,
+    products_figure, chi2_test, cramers_v
 )
 import plotly.express as px
 st.set_page_config(layout="wide")
@@ -121,6 +122,33 @@ with tab1:
         'Select Products',
         ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"])
 
-    hue = st.selectbox("Select Hue", ["None", "Location", "Device Class"], index=0)
+    # percentage = st.toggle("Use Percentage")
+    percentage=False
+
+    with st.expander("Help"):
+        st.write("**Chi2 Test**\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+    
+    if products:
+        for i in range(len(products)):
+            st.divider()
+
+            col1, col2, col3 = st.columns([0.4, 0.05, 0.55])
+
+            with col1:
+                st.write(f"**Jumlah Customer Churn dan Tidak Churn berdasarkan {products[i]}**")
+                fig = products_figure(products[i], percentage, "Churn Label")
+                st.plotly_chart(fig, use_container_width=True)
+
+            with col3:
+                with st.expander("**Hypothesis Test**", expanded=True):
+                    test = chi2_test(products[i])
+                    st.write(test)
+
+                with st.expander("**Effect size in the Chi-square test**", expanded=True):
+                    cramers_v_output = cramers_v(products[i])
+                    st.write(cramers_v_output)
+
+    else:
+        st.warning("Silahkan pilih produk yang ingin dianalisis")
 
     
