@@ -12,7 +12,19 @@ from utils import (
     products_figure, chi2_test, cramers_v,
     cltv_hypothesis_testing
 )
+from utils2 import (
+    pie_churn,
+    device_class,
+    category_product,
+    tenure_churn,
+    monthly_purchase_churn,
+    cltv_churn,
+    preprocessing
+)
 import plotly.express as px
+import joblib
+
+
 st.set_page_config(layout="wide")
 
 df = pd.read_excel("data\Telco_customer_churn_adapted_v2.xlsx")
@@ -114,6 +126,7 @@ for i in range(3):
 
 tab1, tab2, tab3 = st.tabs(["Product Usage Analysis", "Customer Segmentation", "Customer Churn Analysis"])
 
+# Product Usage Analysis
 with tab1:
     st.header("Product Usage Analysis")
     st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
@@ -187,4 +200,103 @@ with tab1:
     else:
         st.warning("Silahkan pilih produk yang ingin dianalisis")
 
-    
+# Customer Segmentation
+with tab2:
+    st.header('Customer Segmentation')
+
+
+# Churn Analysis
+with tab3:
+
+    with st.container():
+        st.header('Churn Analysis')
+
+        col1, col2, col3= st.columns([0.2 , 0.3, 0.3])
+
+        with col1:
+            fig = pie_churn()
+            st.plotly_chart(fig)
+
+        with col2:
+            fig = device_class()
+            st.plotly_chart(fig)
+
+        with col3:
+            fig = category_product()
+            st.plotly_chart(fig)
+
+    with st.container():
+
+        col1, col2 = st.columns([0.25, 0.75])
+
+        with col1:
+            var = st.selectbox("Select variabel", 
+                ['Monthly Purchase (Thou. IDR)', "CLTV (Predicted Thou. IDR)", 'Tenure Months'])
+
+        with col2:
+            if var == 'CLTV (Predicted Thou. IDR)':
+                fig = cltv_churn()
+            elif var == 'Monthly Purchase (Thou. IDR)':
+                fig = monthly_purchase_churn()
+            elif var == 'Tenure Months':
+                fig = tenure_churn()
+
+            st.plotly_chart(fig)
+
+
+    with st.container():
+        st.header('Predictive Modelling')
+
+        col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+
+        with col1:
+            st.write('Profile User : ')
+            customer_id = st.number_input("Customer ID :")
+            tenure = st.number_input('Tenure Months :')
+            lokasi = st.selectbox('select lokasi', ['Jakarta', 'Bandung'])
+            device = st.selectbox('select device class', ['Mid End', 'High End'])
+
+        with col2:
+            st.write('Product : ')
+            games = st.selectbox('select game', ['Yes', 'No', 'No internet service'])
+            music = st.selectbox('select music', ['Yes', 'No', 'No internet service'])
+            education = st.selectbox('select education', ['Yes', 'No', 'No internet service'])
+            call = st.selectbox('select call', ['Yes', 'No', 'No internet service'])
+
+        with col3:
+            st.write('Keterangan : ')
+            video = st.selectbox('select video', ['Yes', 'No', 'No internet service'])
+            app = st.selectbox('select app', ['Yes', 'No', 'No internet service'])
+            payment = st.selectbox('payment method', ['Digital Wallet', 'Pulsa', 'Debit', 'Credit'])
+            monthly = st.number_input('Monthly purchase')
+
+        data_input = {'Customer ID' : [customer_id], 
+                        'Tenure Months' : [tenure], 
+                        'Location' : [lokasi], 
+                        'Device Class' : [device],
+                        'Games Product': [games], 
+                        'Music Product' : [music], 
+                        'Education Product' : [education], 
+                        'Call Center' : [call],
+                        'Video Product' : [video], 
+                        'Use MyApp' : [app], 
+                        'Payment Method' : [payment], 
+                        'Monthly Purchase (Thou. IDR)' : [monthly] }
+
+        
+        table = pd.DataFrame(data_input)
+        table = preprocessing(table)
+            
+        model = joblib.load('model.joblib')
+        result = model.predict(table)
+
+        jawaban = None
+        if result == 0:
+            jawaban = 'Not Churn / Kembali Lagi'
+        else:
+            jawaban = 'Churn / atau pergi'
+        
+        st.write(' ')
+        st.write('Hasil prediksi : ')
+        st.write(f'Customer {customer_id} akan {result[0]}')
+        st.write(f'Kesimpulannya, Pelanggan ternyata akan {jawaban}')
