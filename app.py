@@ -28,6 +28,7 @@ import joblib
 st.set_page_config(layout="wide")
 
 df = pd.read_excel("data\Telco_customer_churn_adapted_v2.xlsx")
+segment_df = pd.read_excel("data/segmentation.xlsx")
 
 st.title("📊 Customer Behavior Analysis 📈")
 st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
@@ -121,15 +122,23 @@ with tab2:
     st.write("**Variables**")
     st.write(dataset_description)
 
+st.success("""**Insights:**
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
+3. Sed euismod ante et justo varius, vel feugiat nisl lacinia. 
+4. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.
+""")
+
 for i in range(3):
     st.write("")
+
 
 tab1, tab2, tab3 = st.tabs(["Product Usage Analysis", "Customer Segmentation", "Customer Churn Analysis"])
 
 # Product Usage Analysis
 with tab1:
     st.header("Product Usage Analysis")
-    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
     dependent = st.selectbox("Select Dependent Variable", ["Churn Label", "CLTV (Predicted Thou. IDR)"])
 
     products = st.multiselect(
@@ -139,8 +148,8 @@ with tab1:
     # percentage = st.toggle("Use Percentage")
     percentage=False
 
-    with st.expander("Help"):
-        st.write("**Chi2 Test**\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+    # with st.expander("Help"):
+    #     st.write("**Chi2 Test**\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
     
     if products:
         if dependent == "Churn Label":
@@ -163,6 +172,12 @@ with tab1:
                         cramers_v_output = cramers_v(products[i])
                         st.write(cramers_v_output)
 
+                    st.success("""**Insights:**
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
+""")
+
+
         elif dependent == "CLTV (Predicted Thou. IDR)":
             for i in range(len(products)):
                 st.divider()
@@ -176,8 +191,8 @@ with tab1:
 
                 with col3:
                     assumptions, statistic, pvalue, posthoc_result, conclusion = cltv_hypothesis_testing(products[i])
-                    with st.expander("**Assumptions for ANOVA**", expanded=True):
-                        st.write(assumptions)
+                    # with st.expander("**Assumptions for ANOVA**", expanded=True):
+                    #     st.write(assumptions)
 
                     if '❌' in assumptions.iloc[0].values:
                         label = "Kruskal-Wallis Test"
@@ -196,6 +211,11 @@ with tab1:
                     with st.expander(f"**{label}**", expanded=True):
                         st.write(result)
 
+                    st.success("""**Insights:**
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
+""")
+
 
     else:
         st.warning("Silahkan pilih produk yang ingin dianalisis")
@@ -203,14 +223,59 @@ with tab1:
 # Customer Segmentation
 with tab2:
     st.header('Customer Segmentation')
+    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
+
+    model = st.selectbox(
+        'Select Segmentation Model',
+        ["Value-based Segmentation", "Needs-based Segmentation"], index=0)
+    
+    filter = st.selectbox(
+        'Filter',
+        ["Show All", 'Churners', 'Non Churners']
+    )
+
+    model = "Value" if "Value" in model else "Needs"
+
+    if filter == "Show All":
+        data_segment = segment_df[segment_df["Model"] == model]
+    elif filter == "Churners":
+        data_segment = segment_df[(segment_df["Model"] == model) & (segment_df["Churn Label"] == "Yes")]
+    else:
+        data_segment = segment_df[(segment_df["Model"] == model) & (segment_df["Churn Label"] == "No")]
+
+    st.divider()
+    col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
+
+    with col1:
+        st.markdown("<h6 style='text-align: center; color: black;'>Segment Name</h6>", unsafe_allow_html=True)
+    with col2:
+        st.markdown("<h6 style='text-align: center; color: black;'>Characteristics</h6>", unsafe_allow_html=True)
+    with col3:
+        st.markdown("<h6 style='text-align: center; color: black;'>Suggested Marketing Strategy</h6>", unsafe_allow_html=True)
+
+
+    for i in range(len(data_segment)):
+        st.divider()
+        col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
+
+        with col1:
+            st.write(data_segment["Segment"].iloc[i])
+        with col2:
+            st.write(data_segment["Characteristics"].iloc[i])
+        with col3:
+            st.write(data_segment["Marketing"].iloc[i])
+
+
+
 
 
 # Churn Analysis
 with tab3:
-
     with st.container():
         st.header('Churn Analysis')
-
+        st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+        
+        st.divider()
         col1, col2, col3= st.columns([0.2 , 0.3, 0.3])
 
         with col1:
@@ -225,6 +290,7 @@ with tab3:
             fig = category_product()
             st.plotly_chart(fig)
 
+    st.divider()
     with st.container():
 
         col1, col2 = st.columns([0.25, 0.75])
@@ -243,28 +309,27 @@ with tab3:
 
             st.plotly_chart(fig)
 
-
+    st.divider()
     with st.container():
-        st.header('Predictive Modelling')
+        st.header('Predictive Modeling')
+        st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia.")
 
         col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
 
+
         with col1:
-            st.write('Profile User : ')
             customer_id = st.number_input("Customer ID :")
             tenure = st.number_input('Tenure Months :')
             lokasi = st.selectbox('select lokasi', ['Jakarta', 'Bandung'])
             device = st.selectbox('select device class', ['Mid End', 'High End'])
 
         with col2:
-            st.write('Product : ')
             games = st.selectbox('select game', ['Yes', 'No', 'No internet service'])
             music = st.selectbox('select music', ['Yes', 'No', 'No internet service'])
             education = st.selectbox('select education', ['Yes', 'No', 'No internet service'])
             call = st.selectbox('select call', ['Yes', 'No', 'No internet service'])
 
         with col3:
-            st.write('Keterangan : ')
             video = st.selectbox('select video', ['Yes', 'No', 'No internet service'])
             app = st.selectbox('select app', ['Yes', 'No', 'No internet service'])
             payment = st.selectbox('payment method', ['Digital Wallet', 'Pulsa', 'Debit', 'Credit'])
