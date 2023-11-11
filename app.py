@@ -21,6 +21,7 @@ from utils2 import (
     cltv_churn,
     preprocessing
 )
+import association_rules_util as ar
 import plotly.express as px
 import joblib
 
@@ -133,7 +134,7 @@ for i in range(3):
     st.write("")
 
 
-tab1, tab2, tab3 = st.tabs(["Product Usage Analysis", "Customer Segmentation", "Customer Churn Analysis"])
+tab1, tab2, tab3, tab4 = st.tabs(["Product Usage Analysis", "Association Rule", "Customer Segmentation", "Customer Churn Analysis"])
 
 # Product Usage Analysis
 with tab1:
@@ -220,8 +221,62 @@ with tab1:
     else:
         st.warning("Silahkan pilih produk yang ingin dianalisis")
 
-# Customer Segmentation
+
+# Cross-selling Analysis
 with tab2:
+    st.header("Association Rule Analysis")
+    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
+    with st.expander("❓ Methods"):
+        st.markdown("Association rule adalah ...")
+
+    st.subheader("Top 10 Rules")
+    rules = pd.read_csv("data/rules.csv")
+
+    # Menerapkan fungsi pada kolom "antecedents" dan "consequents"
+    rules['antecedents'] = rules['antecedents'].apply(lambda x: ar.frozenset_to_string(eval(x)))
+    rules['consequents'] = rules['consequents'].apply(lambda x: ar.frozenset_to_string(eval(x)))
+
+    st.table(rules)
+
+    st.success("""**Rekomendasi:**
+1. **Maksimalkan Penggunaan MyApp:**\n
+    Implementasikan program insentif khusus untuk pelanggan yang sudah menggunakan layanan Video Product dan Education Product agar mereka lebih aktif menggunakan MyApp. Misalnya, penawaran diskon eksklusif atau akses ke konten premium melalui MyApp.
+2. **Optimalkan Layanan Video dan Edukasi:**\n
+    Perluas dan tingkatkan konten eksklusif pada layanan Video Product dan Education Product. Sertakan fitur yang memikat dan dapat menjadi pembeda dari layanan pesaing. Lakukan promosi yang lebih agresif untuk meningkatkan kesadaran pelanggan terhadap manfaat unik yang ditawarkan oleh kedua layanan ini.
+3. **Perkuat Hubungan melalui Call Center:**\n
+    Tingkatkan pelatihan dan kapabilitas agen Call Center untuk memberikan solusi yang lebih efektif dan cepat. Sertakan inisiatif penghargaan atau program pengenalan bagi agen yang memberikan layanan pelanggan yang luar biasa. Selain itu, pertimbangkan penggunaan teknologi canggih seperti chatbot untuk meningkatkan efisiensi dalam menangani permintaan pelanggan.
+""")
+    
+    st.divider()
+    st.header("Interactive Tools")
+
+    col1, col2 = st.columns([0.25, 0.75])
+
+    with col1:
+        st.markdown("**Set the Parameters**")
+        products = st.multiselect(
+            'Select Products ',
+            ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"],
+            ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"])
+
+        min_support = st.slider("Min Support", min_value=1e-5, max_value=1.0,
+                                value=0.15, step=0.001)
+        
+        min_confidence = st.slider("Min Confidence", min_value=1e-5, max_value=1.0,
+                                value=0.65, step=0.001)
+        
+    with col2:
+        st.markdown("**Top 10 Rules**")
+        sort_key = st.selectbox("Sort Values", ["Confidence", "Lift", "Support"]).lower()        
+        df_ar = ar.index(products, min_support, min_confidence).head(10)
+        output = df_ar[["antecedents", "consequents","support", "confidence", "lift"]].sort_values(sort_key, ascending=False).head(10)
+        st.table(output)
+    
+
+
+
+# Customer Segmentation
+with tab3:
     st.header('Customer Segmentation')
     st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
 
@@ -267,10 +322,8 @@ with tab2:
 
 
 
-
-
 # Churn Analysis
-with tab3:
+with tab4:
     with st.container():
         st.header('Churn Analysis')
         st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
