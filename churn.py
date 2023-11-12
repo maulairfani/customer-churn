@@ -4,7 +4,7 @@ import plotly.express as px
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 
-df = pd.read_excel('data\Telco_customer_churn_adapted_v2.xlsx')
+df = pd.read_excel('data/Telco_customer_churn_adapted_v2.xlsx')
 churn = df.loc[df['Churn Label'] == 'Yes']
 
 def cek(x):
