@@ -21,6 +21,7 @@ from churn import (
     cltv_churn,
     preprocessing
 )
+import customer_segmentation as cs
 from PIL import Image
 import association_rules_util as ar
 import plotly.express as px
@@ -33,7 +34,7 @@ df = pd.read_excel("data\Telco_customer_churn_adapted_v2.xlsx")
 segment_df = pd.read_excel("data/segmentation_lengkap.xlsx")
 
 st.title("📊 Customer Behavior Analysis 📈")
-st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+st.markdown("Selamat datang di Dashboard Customer Behavior Analysis 🚀 Dibangun untuk memberikan gambaran menyeluruh tentang perilaku pelanggan, dashboard ini memiliki fitur-fitur keren seperti **Analisis Penggunaan Produk, Analisis Cross-Selling dengan Association Rule, Segmentasi Pelanggan, dan Analisis Churn Pelanggan**. Mulai dari cara pelanggan berinteraksi dengan layanan kami hingga temuan menarik melalui aturan asosiasi, kami siap membantu perusahaan **mengoptimalkan strategi pemasaran, meningkatkan pendapatan, dan mengurangi churn**. Selamat mengeksplorasi dunia wawasan yang menginspirasi! 🌐✨")
 
 tab1, tab2 = st.tabs(["Dashboard", "Dataset Overview"])
 
@@ -139,8 +140,16 @@ tab1, tab2, tab3, tab4 = st.tabs(["Product Usage Analysis", "Association Rule", 
 
 # Product Usage Analysis
 with tab1:
-    st.header("Product Usage Analysis")
-    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
+    st.header("📊 Product Usage Analysis 🚀")
+    st.markdown("Dalam section ini, kita memahami perilaku pelanggan dalam menggunakan produk dan dampaknya terhadap keputusan churn serta nilai CLTV. Analisis mendalam ini memungkinkan perusahaan untuk mengoptimalkan performa produk, menyusun strategi yang cermat untuk mengurangi churn, dan meningkatkan nilai CLTV melalui produk yang digunakan. Data-driven insights membuka peluang baru untuk meningkatkan kualitas layanan dan pengalaman pelanggan.")
+    with st.expander("❓ Methods"):
+        st.markdown("""Dalam menganalisis penggunaan produk, kita menggunakan dua jenis uji statistik yang berbeda untuk variabel dependen yang berbeda. Pertama, untuk variabel dependen "Churn Label," kita menerapkan uji Chi-square (χ²). Hipotesisnya adalah bahwa tidak ada hubungan antara penggunaan produk dan keputusan pelanggan untuk berhenti berlangganan (churn). Uji ini bertujuan untuk mengidentifikasi apakah ada asosiasi yang signifikan antara variabel ini, memberikan wawasan tentang produk yang mungkin mempengaruhi keputusan churn.
+
+Kedua, untuk variabel dependen "CLTV," kita menggunakan uji Kruskal-Wallis. Hipotesisnya adalah bahwa tidak ada perbedaan yang signifikan dalam nilai CLTV antara kelompok pengguna produk yang berbeda. Uji ini bertujuan untuk menentukan apakah terdapat perbedaan yang signifikan dalam Customer Lifetime Value (CLTV) antara kelompok-kelompok berdasarkan penggunaan produk, membantu perusahaan memahami dampak produk terhadap nilai jangka panjang pelanggan.
+
+Dengan menggunakan kombinasi uji ini, kita dapat mengidentifikasi pengaruh penggunaan produk pada keputusan churn dan nilai CLTV, membimbing strategi perusahaan untuk meningkatkan retensi pelanggan dan nilai tambah jangka panjang. 📈✨
+""")
+    
     dependent = st.selectbox("Select Dependent Variable", ["Churn Label", "CLTV (Predicted Thou. IDR)"])
 
     products = st.multiselect(
@@ -239,10 +248,19 @@ with tab1:
 
 # Cross-selling Analysis
 with tab2:
-    st.header("Association Rule Analysis")
-    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
+    st.header("🔗 Association Rule Analysis 🔄")
+    st.markdown("Section ini fokus pada analisis cross-selling, mengungkap hubungan antar produk dan kombinasi yang potensial. Informasi yang dihasilkan dapat digunakan untuk meningkatkan performa produk melalui promosi yang tepat dan pembuatan paket bundling. Sebuah langkah inovatif untuk memaksimalkan potensi pendapatan dan memberikan nilai tambah kepada pelanggan.")
     with st.expander("❓ Methods"):
-        st.markdown("Association rule adalah ...")
+        st.markdown("""Pada bagian analisis asosiasi, kita menerapkan teknik Association Rule Mining untuk merinci hubungan antar produk dan menganalisis peluang cross-selling. Minimum support yang diatur pada 0.15 digunakan untuk mengidentifikasi kombinasi produk yang signifikan. Misalnya, jika kita memiliki aturan seperti:
+
+- **Antecedents (Education Products) dan Consequents (Call Center):**
+  - **Support (0.17166):** Menunjukkan seberapa sering kombinasi ini muncul dalam dataset.
+  - **Confidence (0.499174):** Mencerminkan seberapa sering pelanggan yang menggunakan produk pendidikan juga menggunakan layanan Call Center.
+  - **Lift (1.720002):** Menunjukkan seberapa besar kemungkinan pelanggan akan menggunakan Call Center setelah menggunakan produk pendidikan, dibandingkan jika kedua kejadian itu tidak terkait.
+
+**Cara Membaca Rule untuk Cross-Selling Analysis:**
+Contoh ini mengindikasikan bahwa pelanggan yang menggunakan produk pendidikan memiliki kemungkinan sekitar 50% untuk menggunakan layanan Call Center. Dengan lift lebih dari 1, hal ini menunjukkan bahwa peluang cross-selling antara produk pendidikan dan layanan Call Center lebih tinggi daripada kebetulan. Analisis ini memberikan wawasan berharga untuk merancang strategi cross-selling yang lebih efektif, meningkatkan penjualan lintas produk, dan memberikan pengalaman pelanggan yang lebih baik. 🔄📊
+""")
 
     st.subheader("Top 10 Rules")
     rules = pd.read_csv("data/rules.csv")
@@ -288,11 +306,10 @@ with tab2:
         st.table(output)
     
 
-
 # Customer Segmentation
 with tab3:
-    st.header('Customer Segmentation')
-    st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. ")
+    st.header('🎯 Customer Segmentation 🎭')
+    st.markdown("Dengan menggunakan dua model - Value-based segmentation dan Needs-based segmentation - section ini memanfaatkan faktor seperti monthly-purchase, CLTV, tenure months, dan variabel produk untuk mengidentifikasi segmen pelanggan. Metode clustering dengan algoritma K-Means memberikan pemahaman mendalam tentang preferensi dan kebutuhan pelanggan, membimbing strategi pemasaran yang terfokus.")
 
     model = st.selectbox(
         'Select Segmentation Model',
@@ -311,6 +328,77 @@ with tab3:
         data_segment = segment_df[(segment_df["Model"] == model) & (segment_df["Churn Label"] == "Yes")]
     else:
         data_segment = segment_df[(segment_df["Model"] == model) & (segment_df["Churn Label"] == "No")]
+    
+    
+    # Read the data
+    df = pd.read_excel("data/Telco_customer_churn_adapted_v2.xlsx")
+    if model == "Needs":
+        columns = ['Games Product', 'Music Product', 'Education Product', 'Video Product']
+        X = df.copy()[columns]
+        churners = X.loc[df[df["Churn Label"] == "Yes"].index]
+        non_churners = X.loc[df[df["Churn Label"] == "No"].index]
+
+        churners = churners[churners["Video Product"] != 'No internet service']
+        non_churners = non_churners[non_churners["Video Product"] != 'No internet service']
+
+        ###
+        for col in columns:
+            non_churners[col] = non_churners[col].replace({"Yes": 1, "No":0})
+            churners[col] = churners[col].replace({"Yes": 1, "No":0})
+        
+        if filter == "Show All":
+            resulting_figures1 = cs.visualize_needs_based_clustering(churners, k=2)
+            resulting_figures2 = cs.visualize_needs_based_clustering(non_churners, k=3)
+
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Churners Needs-based Segmentation")
+                for fig in resulting_figures1:
+                    st.pyplot(fig)
+                st.divider()
+                st.subheader("Non-Churners Needs-based Segmentation")
+                for fig in resulting_figures2:
+                    st.pyplot(fig)
+        elif filter == "Churners":
+            resulting_figures1 = cs.visualize_needs_based_clustering(churners, k=2)
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Churners Needs-based Segmentation")
+                for fig in resulting_figures1:
+                    st.pyplot(fig)
+        else:
+            resulting_figures2 = cs.visualize_needs_based_clustering(non_churners, k=3)
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Non-Churners Needs-based Segmentation")
+                for fig in resulting_figures2:
+                    st.pyplot(fig)
+    
+    else: # VALUE BASED
+        columns = ["Tenure Months", "Monthly Purchase (Thou. IDR)", "CLTV (Predicted Thou. IDR)"]
+        X = df.copy()[columns]
+        churners = X.loc[df[df["Churn Label"] == "Yes"].index]
+        non_churners = X.loc[df[df["Churn Label"] == "No"].index]
+
+        if filter == "Show All":
+            fig1 = cs.visualize_value_based_clustering(churners, k=3)
+            fig2 = cs.visualize_value_based_clustering(non_churners, k=3)
+
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Churners Value-based Segmentation")
+                st.pyplot(fig1)
+                st.divider()
+                st.subheader("Non-Churners Value-based Segmentation")
+                st.pyplot(fig2)
+        elif filter == "Churners":
+            fig1 = cs.visualize_value_based_clustering(churners, k=3)
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Churners Value-based Segmentation")
+                st.pyplot(fig1)
+        else:
+            fig2 = cs.visualize_value_based_clustering(non_churners, k=3)
+            with st.expander("📊 Clustering Result Visualization"):
+                st.subheader("Non-Churners Value-based Segmentation")
+                st.pyplot(fig2)
+
+
 
     for i in range(2):
         st.write("")
@@ -347,8 +435,8 @@ with tab3:
 # Churn Analysis
 with tab4:
     with st.container():
-        st.header('Churn Analysis')
-        st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
+        st.header('🔄 Customer Churn Analysis 🕵️‍♂️')
+        st.markdown("Mengungkap alasan di balik keputusan churn, section ini menampilkan visualisasi karakteristik pelanggan yang churn dengan berbagai faktor. Selain itu, fitur interaktif memungkinkan prediksi churn, memberikan kesempatan proaktif untuk menjaga kepuasan pelanggan dan mengurangi tingkat churn. Sebuah langkah cerdas untuk mempertahankan basis pelanggan yang stabil.")
         
         st.divider()
         col1, col2, col3= st.columns([0.2 , 0.3, 0.3])
@@ -384,10 +472,17 @@ with tab4:
 
             st.plotly_chart(fig)
 
+    st.success("""**Insights:**
+1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
+3. Sed euismod ante et justo varius, vel feugiat nisl lacinia. 
+4. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.
+""")
+
     st.divider()
     with st.container():
         st.header('Predictive Modeling')
-        st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia.")
+        st.markdown("Anda dapat melakukan prediksi keputusan churn pelanggan dengan mengisi form di bawah ini. Selain itu anda juga dapat mengunggah file csv dengan format yang sama dengan dataset original untuk melakukan batch prediction!")
 
         col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
 
