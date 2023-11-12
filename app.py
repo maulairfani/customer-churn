@@ -30,7 +30,7 @@ import joblib
 
 st.set_page_config(layout="wide")
 
-df = pd.read_excel("data/Telco_customer_churn_adapted_v2.xlsx")
+df = pd.read_excel("./data/Telco_customer_churn_adapted_v2.xlsx")
 segment_df = pd.read_excel("data/segmentation_lengkap.xlsx")
 
 st.title("📊 Customer Behavior Analysis 📈")
