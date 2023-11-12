@@ -495,45 +495,54 @@ Kami menggunakan algoritma Random Forest Classifier dimana algoritma ini memilik
 2. Model juga cenderung memiliki akurasi yang tinggi.
 3. Memiliki skalabilitas yang baik dimana waktu komputasi yang digunakan tergolong sedikit atau cepat.
             """)
-        col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
+    # Membagi layout menjadi 2 kolom
+    col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
 
+    # Widget input untuk setiap kolom
+    with col1:
+        customer_id = st.number_input("Customer ID:")
+        tenure = st.number_input('Tenure Months:')
+        lokasi = st.selectbox('Select Location', ['Jakarta', 'Bandung'])
+        device = st.selectbox('Select Device Class', ['Mid End', 'High End'])
 
-        with col1:
-            customer_id = st.number_input("Customer ID :")
-            tenure = st.number_input('Tenure Months :')
-            lokasi = st.selectbox('select lokasi', ['Jakarta', 'Bandung'])
-            device = st.selectbox('select device class', ['Mid End', 'High End'])
+    with col2:
+        games = st.selectbox('Select Game', ['Yes', 'No', 'No internet service'])
+        music = st.selectbox('Select Music', ['Yes', 'No', 'No internet service'])
+        education = st.selectbox('Select Education', ['Yes', 'No', 'No internet service'])
+        call = st.selectbox('Select Call', ['Yes', 'No', 'No internet service'])
 
-        with col2:
-            games = st.selectbox('select game', ['Yes', 'No', 'No internet service'])
-            music = st.selectbox('select music', ['Yes', 'No', 'No internet service'])
-            education = st.selectbox('select education', ['Yes', 'No', 'No internet service'])
-            call = st.selectbox('select call', ['Yes', 'No', 'No internet service'])
+    with col3:
+        video = st.selectbox('Select Video', ['Yes', 'No', 'No internet service'])
+        app = st.selectbox('Select App', ['Yes', 'No', 'No internet service'])
+        payment = st.selectbox('Payment Method', ['Digital Wallet', 'Pulsa', 'Debit', 'Credit'])
+        monthly = st.number_input('Monthly Purchase')
 
-        with col3:
-            video = st.selectbox('select video', ['Yes', 'No', 'No internet service'])
-            app = st.selectbox('select app', ['Yes', 'No', 'No internet service'])
-            payment = st.selectbox('payment method', ['Digital Wallet', 'Pulsa', 'Debit', 'Credit'])
-            monthly = st.number_input('Monthly purchase')
+    # Menambahkan tombol "Predict!"
+    if st.button("Predict!"):
+        # Membuat DataFrame dari input
+        data_input = {
+            'Customer ID': [customer_id],
+            'Tenure Months': [tenure],
+            'Location': [lokasi],
+            'Device Class': [device],
+            'Games Product': [games],
+            'Music Product': [music],
+            'Education Product': [education],
+            'Call Center': [call],
+            'Video Product': [video],
+            'Use MyApp': [app],
+            'Payment Method': [payment],
+            'Monthly Purchase (Thou. IDR)': [monthly]
+        }
 
-        data_input = {'Customer ID' : [customer_id], 
-                        'Tenure Months' : [tenure], 
-                        'Location' : [lokasi], 
-                        'Device Class' : [device],
-                        'Games Product': [games], 
-                        'Music Product' : [music], 
-                        'Education Product' : [education], 
-                        'Call Center' : [call],
-                        'Video Product' : [video], 
-                        'Use MyApp' : [app], 
-                        'Payment Method' : [payment], 
-                        'Monthly Purchase (Thou. IDR)' : [monthly] }
-
-        
+        # Menerapkan preprocessing
         table = pd.DataFrame(data_input)
         table = preprocessing(table)
-            
+
+        # Memuat model
         model = joblib.load('model.joblib')
+
+        # Melakukan prediksi
         result = model.predict(table)
 
         jawaban = None
