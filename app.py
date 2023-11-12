@@ -126,10 +126,10 @@ with tab2:
     st.write(dataset_description)
 
 st.success("""**Insights:**
-1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
-3. Sed euismod ante et justo varius, vel feugiat nisl lacinia. 
-4. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.
+1. Kita mengetahui jika customer terbesar berasal dari kota Jakarta dengan persentase 71.4%, disusul dengan Kota Bandung dengan 28.6%.
+2. Jika dilihat dari Tenure, pelanggan terbanyak ada berada tahun pertama, dan diikuti tahun-tahun selanjutnya. 
+3. Kita mengetahui bahwasanya, metode payment paling digemari yaitu dengan metode pulsa, lalu diikuti metode digital wallet. 
+4. Dari distribusi CLTV predicted, kita bisa mengetahui bahwa customer paling banyak diprediksi disekitar nilai 7000 atau 7 jutaan.
 """)
 
 for i in range(3):
@@ -435,10 +435,10 @@ with tab3:
 # Churn Analysis
 with tab4:
     with st.container():
-        st.header('🔄 Customer Churn Analysis 🕵️‍♂️')
-        st.markdown("Mengungkap alasan di balik keputusan churn, section ini menampilkan visualisasi karakteristik pelanggan yang churn dengan berbagai faktor. Selain itu, fitur interaktif memungkinkan prediksi churn, memberikan kesempatan proaktif untuk menjaga kepuasan pelanggan dan mengurangi tingkat churn. Sebuah langkah cerdas untuk mempertahankan basis pelanggan yang stabil.")
-        
+        st.header('🔄 Customer Churn Analysis 🕵‍♂')
+        st.markdown("Mengungkap alasan di balik keputusan churn, section ini menampilkan visualisasi karakteristik pelanggan yang churn dengan berbagai faktor. Selain itu, fitur interaktif memungkinkan prediksi churn, memberikan kesempatan proaktif untuk menjaga kepuasan pelanggan dan mengurangi tingkat churn. Sebuah langkah cerdas untuk mempertahankan basis pelanggan yang stabil.")
         st.divider()
+
         col1, col2, col3= st.columns([0.2 , 0.3, 0.3])
 
         with col1:
@@ -472,18 +472,29 @@ with tab4:
 
             st.plotly_chart(fig)
 
-    st.success("""**Insights:**
-1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
-3. Sed euismod ante et justo varius, vel feugiat nisl lacinia. 
-4. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.
+    st.success("""**Insight**:
+1. Kita bisa mengetahui bahwasanya persentase churn rate sekitar 26.5%
+2. Jika dilihat dari Device, kita bisa menyimpulkan bahwa customer yang churn yaitu customer yang menggunakan device high end
+3. Jika dilihat dari product, customer yang mengalami churn ada pada mereka yang berlangganan video.
+5. Customer yang memiliki churn paling tinggi ada pada mereka yang masa berlangganannya kurang dari satu tahun.
+6. Mayoritas customer yang churn adalah mereka yang mengeluarkan biaya berlangganan bulanan dari 80,0000 - 140,000.
 """)
 
     st.divider()
     with st.container():
         st.header('Predictive Modeling')
-        st.markdown("Anda dapat melakukan prediksi keputusan churn pelanggan dengan mengisi form di bawah ini. Selain itu anda juga dapat mengunggah file csv dengan format yang sama dengan dataset original untuk melakukan batch prediction!")
-
+        st.markdown("""
+Dalam predictive modelling ini, model yang telah dikembangkan akan mengevaluasi karakteristik data yang 
+diinputkan untuk mengklasifikasikan apakah seorang pelanggan cenderung melakukan churn atau tidak. Pengguna dapat memanfaatkan analisis prediktif ini untuk mengidentifikasi faktor-faktor yang mempengaruhi 
+kecenderungan churn dan mengambil langkah-langkah proaktif dalam mempertahankan basis pelanggan.
+        """)
+        with st.expander("❓ Methods"):
+            st.markdown("""
+Kami menggunakan algoritma Random Forest Classifier dimana algoritma ini memiliki beberapa keunggulan diantaranya sebagai berikut:
+1. Model cenderung stabil.
+2. Model juga cenderung memiliki akurasi yang tinggi.
+3. Memiliki skalabilitas yang baik dimana waktu komputasi yang digunakan tergolong sedikit atau cepat.
+            """)
         col1, col2, col3 = st.columns([0.3, 0.3, 0.4])
 
 
@@ -535,3 +546,16 @@ Hasil prediksi : Customer {customer_id} diprediksi akan **Churn**
 Hasil prediksi : Customer {customer_id} diprediksi **tidak akan Churn**
 """)
         
+        st.write(" ")
+        st.write("#### Silahkan upload file.excel jika ingin melakukan prediksi secara kolektif")
+        file_upload = st.file_uploader("Pilih file.excel", type=["xlsx"])
+
+        if(file_upload != None):
+            awal = pd.read_excel(file_upload)
+            file_df = preprocessing(awal)
+            y_pred = model.predict(file_df)
+            awal = pd.read_excel(file_upload)
+            awal['Churn Label predicted'] = y_pred
+            awal['Churn Label predicted'] = awal['Churn Label predicted'].map({1:"Churn", 0:"Not Churn"})
+
+            st.write(awal)
