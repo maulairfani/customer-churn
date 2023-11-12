@@ -432,11 +432,11 @@ with tab4:
 
         jawaban = None
         if result == 0:
-            jawaban = 'Not Churn / Kembali Lagi'
+            st.error(f"""
+Hasil prediksi : Customer {customer_id} diprediksi akan **Churn**
+""")
         else:
-            jawaban = 'Churn / atau pergi'
+            st.success(f"""
+Hasil prediksi : Customer {customer_id} diprediksi **tidak akan Churn**
+""")
         
-        st.write(' ')
-        st.write('Hasil prediksi : ')
-        st.write(f'Customer {customer_id} akan {result[0]}')
-        st.write(f'Kesimpulannya, Pelanggan ternyata akan {jawaban}')
