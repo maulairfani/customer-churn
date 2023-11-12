@@ -30,7 +30,7 @@ unit of thousands of IDR)
 Calculated using company's formulas)"""
 
 # Dataset
-df = pd.read_excel("data\Telco_customer_churn_adapted_v2.xlsx")
+df = pd.read_excel("data/Telco_customer_churn_adapted_v2.xlsx")
 
 ## General Statistics
 churn_rate = round(df["Churn Label"].value_counts() / len(df), 3)["Yes"] * 100 
