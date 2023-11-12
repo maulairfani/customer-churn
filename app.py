@@ -12,7 +12,7 @@ from utils import (
     products_figure, chi2_test, cramers_v,
     cltv_hypothesis_testing
 )
-from utils2 import (
+from churn import (
     pie_churn,
     device_class,
     category_product,
@@ -21,7 +21,6 @@ from utils2 import (
     cltv_churn,
     preprocessing
 )
-import cv2
 from PIL import Image
 import association_rules_util as ar
 import plotly.express as px
@@ -154,6 +153,12 @@ with tab1:
     # with st.expander("Help"):
     #     st.write("**Chi2 Test**\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
     
+    kesimpulan_cramers_v = [
+        "Small Effect: Jika nilai Cramer's V mendekati 0.1, ini menunjukkan bahwa hubungan antara penggunaan layanan game dan keputusan churn memiliki efek kecil. Meskipun ada hubungan statistik, pengaruh praktisnya mungkin tidak begitu kuat.",
+        "Medium Effect: Jika nilai Cramer's V berada di kisaran 0.3, ini menunjukkan bahwa hubungan memiliki efek menengah. Penggunaan layanan game mungkin memiliki pengaruh yang cukup terlihat terhadap keputusan churn, dan strategi bisnis dapat dipertimbangkan untuk mengatasi hal ini.",
+        "High Effect: Jika nilai Cramer's V mendekati atau melebihi 0.5, ini menunjukkan bahwa hubungan antara penggunaan layanan game dan keputusan churn memiliki efek besar. Ini adalah sinyal yang kuat bahwa penggunaan layanan game secara substansial mempengaruhi keputusan pelanggan untuk churn, dan langkah-langkah bisnis lebih lanjut mungkin diperlukan untuk memitigasi churn di antara pengguna layanan game."
+    ]
+
     if products:
         if dependent == "Churn Label":
             for i in range(len(products)):
@@ -167,18 +172,26 @@ with tab1:
                     st.plotly_chart(fig, use_container_width=True)
 
                 with col3:
-                    with st.expander("**Hypothesis Test**", expanded=True):
+                    with st.expander("**Hypothesis Test**", expanded=False):
                         test = chi2_test(products[i])
                         st.write(test)
 
-                    with st.expander("**Effect size in the Chi-square test**", expanded=True):
+                    with st.expander("**Effect size in the Chi-square test**", expanded=False):
                         cramers_v_output = cramers_v(products[i])
                         st.write(cramers_v_output)
 
-                    st.success("""**Insights:**
-1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
-""")
+                        if "Small" in cramers_v_output["Effect Size"].iloc[0]:
+                            kesimpulan_cv = kesimpulan_cramers_v[0]
+                        elif "Medium" in cramers_v_output["Effect Size"].iloc[0]:
+                            kesimpulan_cv = kesimpulan_cramers_v[1]
+                        else:
+                            kesimpulan_cv = kesimpulan_cramers_v[2]
+
+
+                    st.success(f"""**Insights:**\n\n
+1. Berdasarkan analisis statistik, terdapat perbedaan yang signifikan dalam hal keputusan churn di antara pelanggan yang menggunakan {products[i]} dan yang tidak menggunakan {products[i]}.
+2. {kesimpulan_cv}
+3. Pemahaman ini dapat membantu kita menyesuaikan strategi retensi pelanggan. Misalnya, jika pelanggan yang menggunakan {products[i]} lebih cenderung churn, mungkin perlu dipertimbangkan peningkatan nilai atau penawaran eksklusif untuk mempertahankan mereka.""")
 
 
         elif dependent == "CLTV (Predicted Thou. IDR)":
@@ -214,9 +227,9 @@ with tab1:
                     with st.expander(f"**{label}**", expanded=True):
                         st.write(result)
 
-                    st.success("""**Insights:**
-1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-2. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. 
+                    st.success(f"""**Insights:**
+1. Hasil ini dapat diartikan bahwa penggunaan {products[i]} dapat mempengaruhi nilai CLTV pelanggan secara signifikan.
+2. Implikasinya adalah perusahaan dapat mengoptimalkan strategi bisnis dengan fokus pada pengembangan layanan yang memiliki dampak positif terhadap nilai CLTV. Meningkatkan nilai CLTV dapat mencakup up-selling, cross-selling, atau meningkatkan retensi pelanggan.
 """)
 
 
@@ -274,7 +287,6 @@ with tab2:
         output = df_ar[["antecedents", "consequents","support", "confidence", "lift"]].sort_values(sort_key, ascending=False).head(10)
         st.table(output)
     
-
 
 
 # Customer Segmentation
