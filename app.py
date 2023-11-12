@@ -21,6 +21,8 @@ from utils2 import (
     cltv_churn,
     preprocessing
 )
+import cv2
+from PIL import Image
 import association_rules_util as ar
 import plotly.express as px
 import joblib
@@ -29,7 +31,7 @@ import joblib
 st.set_page_config(layout="wide")
 
 df = pd.read_excel("data\Telco_customer_churn_adapted_v2.xlsx")
-segment_df = pd.read_excel("data/segmentation.xlsx")
+segment_df = pd.read_excel("data/segmentation_lengkap.xlsx")
 
 st.title("📊 Customer Behavior Analysis 📈")
 st.markdown("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra justo nec metus hendrerit, in vestibulum augue pellentesque. Sed euismod ante et justo varius, vel feugiat nisl lacinia. In hac habitasse platea dictumst. Fusce ullamcorper, risus eget facilisis scelerisque, libero metus condimentum nulla, vel euismod est odio nec est. Nulla id augue ac metus dictum accumsan.")
@@ -298,28 +300,36 @@ with tab3:
     else:
         data_segment = segment_df[(segment_df["Model"] == model) & (segment_df["Churn Label"] == "No")]
 
-    st.divider()
-    col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
+    for i in range(2):
+        st.write("")
+
+    img_idx = pd.Series(range(1, 12)).sample(len(data_segment)).values
+
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("<h6 style='text-align: center; color: black;'>Segment Name</h6>", unsafe_allow_html=True)
+        for i in range(0, len(data_segment), 3):
+            segment = data_segment["Segment"].iloc[i]
+            karakter = data_segment["Characteristics"].iloc[i]
+            marketing = data_segment["Marketing"].iloc[i]
+            st.image(Image.open(f"images/{img_idx[i]}.png"))
+            st.success(f"""**{segment}**\n\n**Karakteristik**\n\n{karakter}\n\n**Rekomendasi Strategi Pemasaran**\n\n{marketing}""")
+    
     with col2:
-        st.markdown("<h6 style='text-align: center; color: black;'>Characteristics</h6>", unsafe_allow_html=True)
+        for i in range(1, len(data_segment), 3):
+            segment = data_segment["Segment"].iloc[i]
+            karakter = data_segment["Characteristics"].iloc[i]
+            marketing = data_segment["Marketing"].iloc[i]
+            st.image(Image.open(f"images/{img_idx[i]}.png"))
+            st.warning(f"""**{segment}**\n\n**Karakteristik**\n\n{karakter}\n\n**Rekomendasi Strategi Pemasaran**\n\n{marketing}""")
+
     with col3:
-        st.markdown("<h6 style='text-align: center; color: black;'>Suggested Marketing Strategy</h6>", unsafe_allow_html=True)
-
-
-    for i in range(len(data_segment)):
-        st.divider()
-        col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
-
-        with col1:
-            st.write(data_segment["Segment"].iloc[i])
-        with col2:
-            st.write(data_segment["Characteristics"].iloc[i])
-        with col3:
-            st.write(data_segment["Marketing"].iloc[i])
-
+        for i in range(2, len(data_segment), 3):
+            segment = data_segment["Segment"].iloc[i]
+            karakter = data_segment["Characteristics"].iloc[i]
+            marketing = data_segment["Marketing"].iloc[i]
+            st.image(Image.open(f"images/{img_idx[i]}.png"))
+            st.info(f"""**{segment}**\n\n**Karakteristik**\n\n{karakter}\n\n**Rekomendasi Strategi Pemasaran**\n\n{marketing}""")
 
 
 # Churn Analysis
@@ -344,7 +354,7 @@ with tab4:
             st.plotly_chart(fig)
 
     st.divider()
-    with st.container():
+    with st.container():  
 
         col1, col2 = st.columns([0.25, 0.75])
 
