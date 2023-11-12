@@ -154,7 +154,8 @@ Dengan menggunakan kombinasi uji ini, kita dapat mengidentifikasi pengaruh pengg
 
     products = st.multiselect(
         'Select Products',
-        ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"])
+        ["Games Product", "Music Product", "Education Product", "Video Product", "Call Center", "Use MyApp"],
+        ["Games Product", "Music Product", "Education Product"])
 
     # percentage = st.toggle("Use Percentage")
     percentage=False
